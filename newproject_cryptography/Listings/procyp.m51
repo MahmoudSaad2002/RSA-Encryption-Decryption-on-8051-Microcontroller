@@ -1,0 +1,513 @@
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                    01/18/2025  18:02:37  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.4.0, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\main.obj TO .\Objects\procyp PRINT (.\Listings\procyp.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\main.obj (MAIN)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CSTOPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?IMUL)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?SIDIV)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?LMUL)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?ULDIV)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?ULCMP)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?ULSHR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (PRINTF)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (RAND)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (ATOI)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CSTPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?UIDIV)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?PLDIIDATA)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CCASE)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (PUTCHAR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (ISDIGIT)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (ISSPACE)
+
+
+LINK MAP OF MODULE:  .\Objects\procyp (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0014H     UNIT         ?DT?MAIN
+            DATA    001CH     0004H     UNIT         ?DT?RAND?RAND
+            BIT     0020H.0   0001H.1   UNIT         _BIT_GROUP_
+                    0021H.1   0000H.7                *** GAP ***
+            DATA    0022H     0056H     UNIT         _DATA_GROUP_
+            IDATA   0078H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     07FDH                  *** GAP ***
+            CODE    0800H     035CH     UNIT         ?PR?PRINTF?PRINTF
+            CODE    0B5CH     028EH     UNIT         ?C?LIB_CODE
+            CODE    0DEAH     024BH     UNIT         ?CO?MAIN
+            CODE    1035H     0208H     UNIT         ?PR?MAIN?MAIN
+            CODE    123DH     00CFH     UNIT         ?PR?_CHECKPRIME?MAIN
+            CODE    130CH     00B7H     UNIT         ?PR?_MODULAREXPONENTIATION?MAIN
+            CODE    13C3H     00AEH     UNIT         ?PR?_ATOI?ATOI
+            CODE    1471H     009EH     UNIT         ?PR?_CALCULATEMODULARINVERSE?MAIN
+            CODE    150FH     0065H     UNIT         ?PR?UART_RECEIVELONG?MAIN
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 2
+
+
+            CODE    1574H     0054H     UNIT         ?PR?_CALCULATEGCD?MAIN
+            CODE    15C8H     004DH     UNIT         ?PR?RAND?RAND
+            CODE    1615H     004BH     UNIT         ?PR?_UART_RECEIVEINPUTSTRING?MAIN
+            CODE    1660H     002FH     UNIT         ?PR?_UART_TRANSMITSTRING?MAIN
+            CODE    168FH     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
+            CODE    16B6H     0013H     UNIT         ?PR?_ISSPACE?ISSPACE
+            CODE    16C9H     000FH     UNIT         ?PR?_ISDIGIT?ISDIGIT
+            CODE    16D8H     000CH     UNIT         ?PR?UART_INITIALIZE?MAIN
+            CODE    16E4H     000CH     UNIT         ?C_C51STARTUP
+            CODE    16F0H     0008H     UNIT         ?PR?_UART_TRANSMITCHAR?MAIN
+            CODE    16F8H     0008H     UNIT         ?PR?UART_RECEIVECHAR?MAIN
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\procyp (MAIN)
+
+
+SEGMENT                                      BIT_GROUP          DATA_GROUP 
+  +--> CALLED SEGMENT                     START    LENGTH     START    LENGTH
+-----------------------------------------------------------------------------
+?C_C51STARTUP                             -----    -----      -----    -----
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN                             -----    -----      0022H    0040H
+  +--> ?PR?UART_INITIALIZE?MAIN
+  +--> ?CO?MAIN
+  +--> ?PR?_UART_TRANSMITSTRING?MAIN
+  +--> ?PR?UART_RECEIVELONG?MAIN
+  +--> ?PR?_CHECKPRIME?MAIN
+  +--> ?PR?_CALCULATEGCD?MAIN
+  +--> ?PR?_CALCULATEMODULARINVERSE?MAIN
+  +--> ?PR?PRINTF?PRINTF
+  +--> ?PR?_UART_RECEIVEINPUTSTRING?MAIN
+  +--> ?PR?_ATOI?ATOI
+  +--> ?PR?_MODULAREXPONENTIATION?MAIN
+
+?PR?_UART_TRANSMITSTRING?MAIN             -----    -----      0062H    0003H
+  +--> ?PR?_UART_TRANSMITCHAR?MAIN
+
+?PR?UART_RECEIVELONG?MAIN                 -----    -----      0062H    0006H
+  +--> ?PR?UART_RECEIVECHAR?MAIN
+
+?PR?_CHECKPRIME?MAIN                      -----    -----      0062H    0008H
+  +--> ?PR?RAND?RAND
+  +--> ?PR?_MODULAREXPONENTIATION?MAIN
+
+?PR?_MODULAREXPONENTIATION?MAIN           -----    -----      006AH    000EH
+
+?PR?_CALCULATEGCD?MAIN                    -----    -----      0062H    000AH
+
+?PR?_CALCULATEMODULARINVERSE?MAIN         -----    -----      0062H    000EH
+
+?PR?PRINTF?PRINTF                         0020H.0  0001H.1    0062H    0014H
+  +--> ?PR?PUTCHAR?PUTCHAR
+
+?PR?_UART_RECEIVEINPUTSTRING?MAIN         -----    -----      0062H    0006H
+  +--> ?PR?UART_RECEIVECHAR?MAIN
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 3
+
+
+
+?PR?_ATOI?ATOI                            0020H.0  0000H.1    0062H    0005H
+  +--> ?PR?_ISSPACE?ISSPACE
+  +--> ?PR?_ISDIGIT?ISDIGIT
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\procyp (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:1035H         PUBLIC        main
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  C:16D8H         PUBLIC        UART_Initialize
+  C:1318H         PUBLIC        _ModularExponentiation
+  D:0008H         PUBLIC        phi
+  D:008DH         PUBLIC        TH1
+  C:1471H         PUBLIC        _CalculateModularInverse
+  B:0088H.6       PUBLIC        TR1
+  C:1243H         PUBLIC        _CheckPrime
+  D:000CH         PUBLIC        d
+  C:1574H         PUBLIC        _CalculateGCD
+  D:0010H         PUBLIC        e
+  C:16F8H         PUBLIC        UART_ReceiveChar
+  D:0014H         PUBLIC        n
+  D:0018H         PUBLIC        p
+  D:001AH         PUBLIC        q
+  C:1666H         PUBLIC        _UART_TransmitString
+  C:161FH         PUBLIC        _UART_ReceiveInputString
+  C:16F0H         PUBLIC        _UART_TransmitChar
+  C:150FH         PUBLIC        UART_ReceiveLong
+  -------         PROC          MAIN
+  -------         DO            
+  D:0022H         SYMBOL        choice
+  D:0006H         SYMBOL        plaintext
+  D:0024H         SYMBOL        ciphertext
+  D:0006H         SYMBOL        decrypted_value
+  D:0026H         SYMBOL        buffer
+  D:0058H         SYMBOL        Buf
+  -------         ENDDO         
+  C:1035H         LINE#         37
+  C:1035H         LINE#         44
+  C:1038H         LINE#         45
+  C:1040H         LINE#         48
+  C:1040H         LINE#         49
+  C:1049H         LINE#         50
+  C:1050H         LINE#         52
+  C:1060H         LINE#         53
+  C:1069H         LINE#         54
+  C:106BH         LINE#         57
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 4
+
+
+  C:106BH         LINE#         58
+  C:1074H         LINE#         59
+  C:107BH         LINE#         61
+  C:1084H         LINE#         62
+  C:108AH         LINE#         63
+  C:108CH         LINE#         64
+  C:108CH         LINE#         65
+  C:1095H         LINE#         66
+  C:1095H         LINE#         67
+  C:1097H         LINE#         70
+  C:1097H         LINE#         71
+  C:10A0H         LINE#         72
+  C:10A7H         LINE#         75
+  C:10B0H         LINE#         76
+  C:10B9H         LINE#         77
+  C:10BBH         LINE#         78
+  C:10BBH         LINE#         79
+  C:10C4H         LINE#         80
+  C:10C4H         LINE#         81
+  C:10C6H         LINE#         84
+  C:10DAH         LINE#         85
+  C:10FAH         LINE#         88
+  C:10FAH         LINE#         89
+  C:1103H         LINE#         90
+  C:110EH         LINE#         93
+  C:1129H         LINE#         94
+  C:1132H         LINE#         95
+  C:1132H         LINE#         96
+  C:1132H         LINE#         97
+  C:1132H         LINE#         100
+  C:1151H         LINE#         103
+  C:117BH         LINE#         104
+  C:117EH         LINE#         105
+  C:11A8H         LINE#         106
+  C:11ABH         LINE#         109
+  C:11B3H         LINE#         110
+  C:11BCH         LINE#         111
+  C:11BFH         LINE#         112
+  C:11C8H         LINE#         116
+  C:11DEH         LINE#         117
+  C:11EDH         LINE#         118
+  C:11EDH         LINE#         119
+  C:11F7H         LINE#         120
+  C:1200H         LINE#         121
+  C:1203H         LINE#         122
+  C:1210H         LINE#         126
+  C:1222H         LINE#         127
+  C:1238H         LINE#         128
+  C:123BH         LINE#         131
+  C:123BH         LINE#         133
+  -------         ENDPROC       MAIN
+  -------         PROC          UART_INITIALIZE
+  C:16D8H         LINE#         138
+  C:16D8H         LINE#         139
+  C:16DBH         LINE#         140
+  C:16DEH         LINE#         141
+  C:16E1H         LINE#         142
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 5
+
+
+  C:16E3H         LINE#         143
+  -------         ENDPROC       UART_INITIALIZE
+  -------         PROC          _UART_TRANSMITCHAR
+  D:0007H         SYMBOL        c
+  C:16F0H         LINE#         145
+  C:16F0H         LINE#         146
+  C:16F2H         LINE#         147
+  C:16F5H         LINE#         148
+  C:16F7H         LINE#         149
+  -------         ENDPROC       _UART_TRANSMITCHAR
+  -------         PROC          UART_RECEIVECHAR
+  C:16F8H         LINE#         151
+  C:16F8H         LINE#         152
+  C:16FBH         LINE#         153
+  C:16FDH         LINE#         154
+  C:16FFH         LINE#         155
+  -------         ENDPROC       UART_RECEIVECHAR
+  C:1660H         SYMBOL        L?0075
+  -------         PROC          L?0074
+  -------         ENDPROC       L?0074
+  C:1660H         SYMBOL        L?0075
+  -------         PROC          _UART_TRANSMITSTRING
+  D:0062H         SYMBOL        str
+  C:1666H         LINE#         157
+  C:166CH         LINE#         158
+  C:1677H         LINE#         159
+  C:1688H         LINE#         160
+  C:168AH         LINE#         161
+  -------         ENDPROC       _UART_TRANSMITSTRING
+  -------         PROC          UART_RECEIVELONG
+  -------         DO            
+  D:0062H         SYMBOL        value
+  D:0066H         SYMBOL        i
+  D:0067H         SYMBOL        c
+  -------         ENDDO         
+  C:150FH         LINE#         164
+  C:150FH         LINE#         165
+  C:1518H         LINE#         169
+  C:151AH         LINE#         170
+  C:151FH         LINE#         171
+  C:152BH         LINE#         172
+  C:1562H         LINE#         173
+  C:156BH         LINE#         174
+  C:1573H         LINE#         175
+  -------         ENDPROC       UART_RECEIVELONG
+  -------         PROC          L?0077
+  -------         ENDPROC       L?0077
+  -------         PROC          _UART_RECEIVEINPUTSTRING
+  D:0062H         SYMBOL        buffer
+  D:0065H         SYMBOL        length
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0067H         SYMBOL        ch
+  -------         ENDDO         
+  C:161FH         LINE#         177
+  C:1629H         LINE#         178
+  C:162CH         LINE#         180
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 6
+
+
+  C:1635H         LINE#         181
+  C:163AH         LINE#         182
+  C:1646H         LINE#         183
+  C:1646H         LINE#         184
+  C:1646H         LINE#         185
+  C:165DH         LINE#         186
+  C:165FH         LINE#         187
+  -------         ENDPROC       _UART_RECEIVEINPUTSTRING
+  -------         PROC          L?0076
+  -------         ENDPROC       L?0076
+  -------         PROC          _MODULAREXPONENTIATION
+  D:006AH         SYMBOL        base
+  D:006EH         SYMBOL        exp
+  D:0072H         SYMBOL        mod
+  -------         DO            
+  D:0076H         SYMBOL        result
+  -------         ENDDO         
+  C:1318H         LINE#         190
+  C:1320H         LINE#         191
+  C:1326H         LINE#         192
+  C:1328H         LINE#         193
+  C:133EH         LINE#         194
+  C:1351H         LINE#         195
+  C:1375H         LINE#         196
+  C:1375H         LINE#         197
+  C:138AH         LINE#         198
+  C:13B8H         LINE#         199
+  C:13BBH         LINE#         200
+  C:13C2H         LINE#         201
+  -------         ENDPROC       _MODULAREXPONENTIATION
+  -------         PROC          _CALCULATEGCD
+  D:0062H         SYMBOL        a
+  D:0066H         SYMBOL        b
+  -------         DO            
+  D:006AH         SYMBOL        temp
+  -------         ENDDO         
+  C:1574H         LINE#         204
+  C:157CH         LINE#         205
+  C:158FH         LINE#         206
+  C:1595H         LINE#         207
+  C:15B2H         LINE#         208
+  C:15BDH         LINE#         209
+  C:15BFH         LINE#         210
+  C:15C7H         LINE#         211
+  -------         ENDPROC       _CALCULATEGCD
+  -------         PROC          L?0078
+  -------         ENDPROC       L?0078
+  -------         PROC          _CHECKPRIME
+  D:0062H         SYMBOL        n
+  D:0066H         SYMBOL        security_level
+  -------         DO            
+  D:0067H         SYMBOL        i
+  -------         DO            
+  D:0068H         SYMBOL        a
+  -------         ENDDO         
+  -------         ENDDO         
+  C:1243H         LINE#         215
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 7
+
+
+  C:124BH         LINE#         217
+  C:1262H         LINE#         218
+  C:1279H         LINE#         219
+  C:128FH         LINE#         220
+  C:1299H         LINE#         221
+  C:12C4H         LINE#         222
+  C:12FDH         LINE#         223
+  C:1301H         LINE#         224
+  C:1301H         LINE#         225
+  C:1305H         LINE#         226
+  C:130BH         LINE#         227
+  -------         ENDPROC       _CHECKPRIME
+  -------         PROC          _CALCULATEMODULARINVERSE
+  D:0062H         SYMBOL        e
+  D:0066H         SYMBOL        phi
+  -------         DO            
+  D:0002H         SYMBOL        t
+  D:006AH         SYMBOL        new_t
+  D:006CH         SYMBOL        r
+  D:0082H         SYMBOL        new_r
+  D:006EH         SYMBOL        quotient
+  D:0006H         SYMBOL        temp
+  -------         ENDDO         
+  C:1471H         LINE#         230
+  C:1479H         LINE#         231
+  C:1479H         LINE#         237
+  C:147FH         LINE#         238
+  C:1483H         LINE#         239
+  C:1486H         LINE#         240
+  C:148BH         LINE#         242
+  C:1491H         LINE#         243
+  C:1491H         LINE#         244
+  C:14A0H         LINE#         247
+  C:14B2H         LINE#         248
+  C:14C3H         LINE#         251
+  C:14C7H         LINE#         252
+  C:14CDH         LINE#         253
+  C:14D1H         LINE#         255
+  C:14D4H         LINE#         256
+  C:14D8H         LINE#         257
+  C:14DCH         LINE#         258
+  C:14DEH         LINE#         261
+  C:14EBH         LINE#         262
+  C:14F2H         LINE#         263
+  C:14F2H         LINE#         264
+  C:14FAH         LINE#         265
+  C:1502H         LINE#         266
+  C:1504H         LINE#         268
+  C:150EH         LINE#         269
+  -------         ENDPROC       _CALCULATEMODULARINVERSE
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        ?C?CLDPTR
+  C:0B5CH         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CSTOPTR
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 8
+
+
+  C:0B75H         PUBLIC        ?C?CSTOPTR
+  -------         ENDMOD        ?C?CSTOPTR
+
+  -------         MODULE        ?C?IMUL
+  C:0B97H         PUBLIC        ?C?IMUL
+  -------         ENDMOD        ?C?IMUL
+
+  -------         MODULE        ?C?SIDIV
+  C:0BA9H         PUBLIC        ?C?SIDIV
+  -------         ENDMOD        ?C?SIDIV
+
+  -------         MODULE        ?C?LMUL
+  C:0BDFH         PUBLIC        ?C?LMUL
+  -------         ENDMOD        ?C?LMUL
+
+  -------         MODULE        ?C?ULDIV
+  C:0C6AH         PUBLIC        ?C?ULDIV
+  -------         ENDMOD        ?C?ULDIV
+
+  -------         MODULE        ?C?ULCMP
+  C:0CFCH         PUBLIC        ?C?ULCMP
+  -------         ENDMOD        ?C?ULCMP
+
+  -------         MODULE        ?C?ULSHR
+  C:0D0DH         PUBLIC        ?C?ULSHR
+  -------         ENDMOD        ?C?ULSHR
+
+  -------         MODULE        PRINTF
+  D:0062H         PUBLIC        ?_PRINTF517?BYTE
+  D:0062H         PUBLIC        ?_PRINTF?BYTE
+  D:0062H         PUBLIC        ?_SPRINTF517?BYTE
+  D:0062H         PUBLIC        ?_SPRINTF?BYTE
+  C:0862H         PUBLIC        _PRINTF
+  C:0862H         PUBLIC        _PRINTF517
+  C:085CH         PUBLIC        _SPRINTF
+  C:085CH         PUBLIC        _SPRINTF517
+  -------         ENDMOD        PRINTF
+
+  -------         MODULE        RAND
+  D:001CH         PUBLIC        ?SRAND?BYTE
+  C:15C8H         PUBLIC        RAND
+  C:160AH         PUBLIC        _SRAND
+  -------         ENDMOD        RAND
+
+  -------         MODULE        ATOI
+  C:13C3H         PUBLIC        _atoi
+  -------         ENDMOD        ATOI
+
+  -------         MODULE        ?C?CLDOPTR
+  C:0D20H         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+  -------         MODULE        ?C?CSTPTR
+  C:0D4DH         PUBLIC        ?C?CSTPTR
+  -------         ENDMOD        ?C?CSTPTR
+
+  -------         MODULE        ?C?UIDIV
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  01/18/2025  18:02:37  PAGE 9
+
+
+  C:0D5FH         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
+  -------         MODULE        ?C?PLDIIDATA
+  C:0DB4H         PUBLIC        ?C?PLDIIDATA
+  -------         ENDMOD        ?C?PLDIIDATA
+
+  -------         MODULE        ?C?CCASE
+  C:0DC4H         PUBLIC        ?C?CCASE
+  -------         ENDMOD        ?C?CCASE
+
+  -------         MODULE        PUTCHAR
+  C:168FH         PUBLIC        _PUTCHAR
+  -------         ENDMOD        PUTCHAR
+
+  -------         MODULE        ISDIGIT
+  C:16C9H         PUBLIC        _isdigit
+  -------         ENDMOD        ISDIGIT
+
+  -------         MODULE        ISSPACE
+  C:16B6H         PUBLIC        _isspace
+  -------         ENDMOD        ISSPACE
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 07C6H BYTE (97%) *
+******************************************************************************
+
+Program Size: data=120.1 xdata=0 code=3843
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

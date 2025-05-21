@@ -1,0 +1,1244 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include <stdio.h>
+   3          #include <stdlib.h>
+   4          
+   5          // Configuration defines
+   6          #define MAX_INPUT_LENGTH 5  // Maximum input length for numbers
+   7          #define SECURITY_LEVEL 5    // Security level for primality test
+   8          #define ASCII_PRINTABLE_MIN 32  // Minimum printable ASCII value
+   9          #define ASCII_PRINTABLE_MAX 126 // Maximum printable ASCII value
+  10          
+  11          // Typedefs
+  12          typedef unsigned char           u8;
+  13          typedef unsigned short int      u16;
+  14          typedef unsigned long int       u32;
+  15          
+  16          typedef signed int              s32;
+  17          
+  18          // UART function prototypes
+  19          void UART_Initialize();
+  20          void UART_TransmitChar(u8 c);
+  21          u8 UART_ReceiveChar();
+  22          void UART_TransmitString(u8* str);
+  23          u32 UART_ReceiveLong();
+  24          void UART_ReceiveInputString(char* buffer, int length);
+  25          
+  26          // Math function prototypes
+  27          u32 ModularExponentiation(u32 base, u32 exp, u32 mod);
+  28          u32 CalculateGCD(u32 a, u32 b);
+  29          u32 GeneratePublicKeyE(u32 phi);
+  30          u32 CheckPrime(u32 n, u8 security_level);
+  31          u32 CalculateModularInverse(u32 e, u32 phi);
+  32          
+  33          // Global variables
+  34          u16 p, q;
+  35          u32 n, phi, d , e ;
+  36          
+  37          int main(void) {
+  38   1         unsigned int choice;
+  39   1         unsigned int plaintext, ciphertext, decrypted_value;
+  40   1         unsigned char buffer[50];
+  41   1         unsigned char Buf[10];
+  42   1      
+  43   1          // Initialize UART
+  44   1          UART_Initialize();
+  45   1          UART_TransmitString("8051 RSA Encryption/Decryption System\0");
+  46   1      
+  47   1          // Prompt user for operation choice
+  48   1          while (1) {
+  49   2              UART_TransmitString("Choose operation: \r\n 1. Encrypt. \r\n 2. Decrypt \r\n .Enter choice: ");
+  50   2              choice = UART_ReceiveLong();
+  51   2              
+  52   2              if (choice == 1 || choice == 2) break;
+  53   2              UART_TransmitString("Invalid choice. Please enter 1 or 2.");
+  54   2          }
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 2   
+
+  55   1      
+  56   1          // Input p (ensure it's prime)
+  57   1          while (1) {
+  58   2              UART_TransmitString("\r\nEnter prime number p: ");
+  59   2              p = UART_ReceiveLong();
+  60   2             
+  61   2              if (CheckPrime(p, SECURITY_LEVEL)) {
+  62   3                  UART_TransmitString("\r\np is a valid prime number.");
+  63   3                  break;
+  64   3              } else {
+  65   3                  UART_TransmitString("Error: p is not a prime number. Please try again.");
+  66   3              }
+  67   2          }
+  68   1      
+  69   1          // Input q (ensure it's prime)
+  70   1          while (1) {
+  71   2              UART_TransmitString("Enter prime number q: ");
+  72   2              q = UART_ReceiveLong();
+  73   2              
+  74   2      
+  75   2              if (CheckPrime(q, SECURITY_LEVEL)) {
+  76   3                  UART_TransmitString("\r\nq is a valid prime number.");
+  77   3                  break;
+  78   3              } else {
+  79   3                  UART_TransmitString("\r\nError: q is not a prime number. Please try again.");
+  80   3              }
+  81   2          }
+  82   1      
+  83   1          // Calculate n and phi
+  84   1          n = p * q;
+  85   1          phi = (p - 1) * (q - 1);
+  86   1      
+  87   1          // Generate public key e
+  88   1           while (1) {
+  89   2              UART_TransmitString("\r\nEnter public key value e: ");
+  90   2              e = UART_ReceiveLong();
+  91   2              
+  92   2      
+  93   2              if (CalculateGCD(e, phi) == 1) {
+  94   3                  UART_TransmitString("\r\ne is a valid public key.");
+  95   3                  break;
+  96   3              } 
+  97   2          }
+  98   1      
+  99   1          // Calculate private key d
+ 100   1          d = CalculateModularInverse(e, phi);
+ 101   1      
+ 102   1          // Display keys
+ 103   1          sprintf(buffer, "\r\nPublic Key: (e = %lu, n = %lu)", e, n);
+ 104   1          UART_TransmitString(buffer);
+ 105   1          sprintf(buffer, "\r\nPrivate Key: (d = %lu, phi(n) = %lu)", d, phi);
+ 106   1          UART_TransmitString(buffer);
+ 107   1      
+ 108   1          // Perform selected operation
+ 109   1          if (choice == 1) {  // Encryption
+ 110   2              UART_TransmitString("\r\nEnter plaintext to encrypt (as integer): ");
+ 111   2              UART_ReceiveInputString(Buf, 10);
+ 112   2              plaintext = atoi(Buf);
+ 113   2             
+ 114   2      
+ 115   2              // Encrypt plaintext
+ 116   2              ciphertext = ModularExponentiation(plaintext, e, n);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 3   
+
+ 117   2              sprintf(buffer, "Ciphertext: %i", ciphertext);
+ 118   2              UART_TransmitString(buffer);
+ 119   2          } else if (choice == 2) {  // Decryption
+ 120   2              UART_TransmitString("Enter ciphertext to decrypt: ");
+ 121   2              UART_ReceiveInputString(Buf, 10);
+ 122   2              ciphertext = atoi(Buf);
+ 123   2              
+ 124   2      
+ 125   2              // Decrypt ciphertext
+ 126   2              decrypted_value = ModularExponentiation(ciphertext, d, n);
+ 127   2              sprintf(buffer, "Decrypted value: %i", decrypted_value);
+ 128   2              UART_TransmitString(buffer);
+ 129   2      
+ 130   2             
+ 131   2          }
+ 132   1      
+ 133   1       while(1);
+ 134   1          
+ 135   1      }
+ 136          
+ 137          // UART initialization
+ 138          void UART_Initialize() {
+ 139   1          TMOD = 0x20;  // Timer1 in Mode2 (8-bit auto-reload)
+ 140   1          TH1 = 0xFD;   // Timer1 value for 9600 baud with 11.0592 MHz crystal
+ 141   1          SCON = 0x50;  // 8-bit UART mode, REN enabled
+ 142   1          TR1 = 1;      // Start Timer1
+ 143   1      }
+ 144          
+ 145          void UART_TransmitChar(char c) {
+ 146   1            SBUF = c;          // Load the character into UART buffer
+ 147   1          while (TI == 0);    // Wait for the transmission to complete
+ 148   1          TI = 0;     
+ 149   1      }
+ 150          
+ 151          u8 UART_ReceiveChar() {
+ 152   1          while (RI == 0);
+ 153   1          RI = 0;
+ 154   1          return SBUF;
+ 155   1      }
+ 156          
+ 157          void UART_TransmitString(u8* str) {
+ 158   1             while (*str != '\0') {      // Loop until the null terminator
+ 159   2              UART_TransmitChar(*str++);     // Transmit each character via UART
+ 160   2          }
+ 161   1          UART_TransmitChar('\0');
+ 162   1      }
+ 163          
+ 164          u32 UART_ReceiveLong() {
+ 165   1          u32 value = 0;
+ 166   1          u8 i;
+ 167   1          u8 c;
+ 168   1      
+ 169   1          for (i = 0; i < MAX_INPUT_LENGTH; i++) {
+ 170   2              c = UART_ReceiveChar();
+ 171   2              if (c == '\r' || c == '\n') break;  // End of input
+ 172   2              value = value * 10 + (c - '0');
+ 173   2          }
+ 174   1          return value;
+ 175   1      }
+ 176          
+ 177          void UART_ReceiveInputString(unsigned char* buffer, unsigned int length) {
+*** WARNING C235 IN LINE 177 OF main.c: parameter 2: different types
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 4   
+
+ 178   1         unsigned int i = 0;
+ 179   1         unsigned char ch;
+ 180   1          while (i < length) {
+ 181   2              ch = UART_ReceiveChar();
+ 182   2              if (ch == '\n' || ch == '\r') {
+ 183   3                  break;
+ 184   3              }
+ 185   2              buffer[i++] = ch;
+ 186   2          }
+ 187   1      }
+ 188          
+ 189          // Modular exponentiation (square and multiply)
+ 190          u32 ModularExponentiation(u32 base, u32 exp, u32 mod) {
+ 191   1          u16 result = 1;
+ 192   1          base = base % mod;
+ 193   1          while (exp > 0) {
+ 194   2              if (exp % 2 == 1) {
+ 195   3                  result = ((result * base) % mod);
+ 196   3              }
+ 197   2              exp = exp >> 1;
+ 198   2              base = ((base * base) % mod);
+ 199   2          }
+ 200   1          return result;
+ 201   1      }
+ 202          
+ 203          // GCD calculation
+ 204          u32 CalculateGCD(u32 a, u32 b) {
+ 205   1          while (b != 0) {
+ 206   2             unsigned int temp = b;
+ 207   2              b = a % b;
+ 208   2              a = temp;
+ 209   2          }
+ 210   1          return a;
+ 211   1      }
+ 212          
+ 213          
+ 214          // Primality test using Fermat's method
+ 215          u32 CheckPrime(u32 n, u8 security_level) {
+ 216   1          u8 i;
+ 217   1          if (n <= 1) return 0; // 0 and 1 are not prime
+ 218   1          if (n <= 3) return 1; // 2 and 3 are prime
+ 219   1          if (n==4) return 0 ;
+ 220   1          for (i = 0; i < security_level; i++) {
+ 221   2              unsigned int a = (rand() % (n - 4)) + 2;  // Random number in range [2, n-2]
+ 222   2              if (ModularExponentiation(a, n - 1, n) != 1) {
+ 223   3                  return 0;  // Not prime
+ 224   3              }
+ 225   2          }
+ 226   1          return 1;  // Likely prime
+ 227   1      }
+ 228          
+ 229          // Modular inverse using Extended Euclidean Algorithm
+ 230          u32 CalculateModularInverse(u32 e, u32 phi) 
+ 231            {
+ 232   1          int t, new_t;
+ 233   1          int r, new_r;
+ 234   1          int quotient;
+ 235   1          int temp;
+ 236   1          
+ 237   1          r = phi;
+ 238   1          new_r = e;
+ 239   1          t = 0;
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 5   
+
+ 240   1          new_t = 1;
+ 241   1      
+ 242   1          while (new_r != 0) 
+ 243   1            {
+ 244   2              quotient = r / new_r;
+ 245   2      
+ 246   2              // Update r and t
+ 247   2              r = r - quotient * new_r;
+ 248   2              t = t - quotient * new_t;
+ 249   2      
+ 250   2              // Swap
+ 251   2             temp = r;
+ 252   2              r = new_r;
+ 253   2              new_r = temp;
+ 254   2      
+ 255   2              temp = t;
+ 256   2              t = new_t;
+ 257   2              new_t = temp;
+ 258   2          }
+ 259   1      
+ 260   1          // Make sure t is positive
+ 261   1          if (r > 1) {
+ 262   2              return -1;  // No inverse exists
+ 263   2          }
+ 264   1          while (t < 0) {
+ 265   2              t = t + phi;
+ 266   2          }
+ 267   1      
+ 268   1          return t;
+ 269   1        }
+ 270          
+ 271          
+ 272          
+ 273          
+ 274          
+ 275          
+ 276          
+ 277          
+ 278          
+ 279          
+ 280          
+ 281          
+ 282          
+ 283          
+ 284          
+ 285          
+ 286          
+ 287          
+ 288          /*
+ 289          #include <reg51.h>
+ 290          #include <stdio.h>
+ 291          #include <stdlib.h>
+ 292          
+ 293          #define MAX_INPUT_LENGTH 5
+ 294          #define SECURITY_LEVEL 5
+ 295          
+ 296          typedef unsigned char            u8;
+ 297          typedef unsigned short int      u16;
+ 298          typedef unsigned long  int      u32;
+ 299          
+ 300          void M_void_UART_Init();
+ 301          void M_void_UART_SendChar(u8 c);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 6   
+
+ 302          u8 M_U8_UART_ReceiveChar();
+ 303          void M_void_UART_SendString(u8* str);
+ 304          u32 M_U32_UART_ReceiveLong();
+ 305          u32 mod_exp(u32 base, u16 exp, u32 mod);
+ 306          u32 gcd(u32 a, u32 b);
+ 307          u32 generate_e(u32 phi);
+ 308          u32 is_prime(u32 n, u8 security_level);
+ 309          u32 mod_inverse(u32 e, u32 phi);
+ 310          void CRT_decrypt(u32 ciphertext, u16 p, u16 q, u32 d);
+ 311          u16 p, q;
+ 312          u32 n, phi, d, e;
+ 313          void main(void) {
+ 314              unsigned char buffer[25];
+ 315              unsigned int plaintext, ciphertext;
+ 316              unsigned char choice;
+ 317              M_void_UART_Init();
+ 318              //M_void_UART_SendString("RSA Encryption/Decryption System\r\n\r\n");
+ 319              // Prompt user for operation choice
+ 320              while (1) {
+ 321                  //M_void_UART_SendString("Choose operation:\r\n1. Encrypt\r\n2. Decrypt\r\nEnter choice: ");
+ 322                   M_void_UART_SendString("1. Encrypt\r\n2. Decrypt\r\nEnter choice: ");
+ 323                  choice = M_U8_UART_ReceiveChar();
+ 324                  M_void_UART_SendString("\r\n");
+ 325                  if (choice == '1' || choice == '2') break;
+ 326                  //M_void_UART_SendString("Invalid choice. Please enter 1 or 2.\r\n\r\n");
+ 327              }
+ 328              // Input p (ensure it's prime)
+ 329              while (1) {
+ 330                  M_void_UART_SendString("Enter prime number p: ");
+ 331                  p = M_U32_UART_ReceiveLong();
+ 332                  //M_void_UART_SendString("\r\n");
+ 333                  if (is_prime(p, SECURITY_LEVEL)) {
+ 334                      M_void_UART_SendString("\r\n p is a valid prime number.\r\n");
+ 335                      break;
+ 336                  } else {
+ 337                      M_void_UART_SendString("Error: p is not a prime number. Please try again.\r\n\r\n");
+ 338                  }
+ 339              }
+ 340              // Input q (ensure it's prime)
+ 341              while (1) {
+ 342                  M_void_UART_SendString("Enter prime number q: ");
+ 343                  q = M_U32_UART_ReceiveLong();
+ 344                  //M_void_UART_SendString("\r\n");
+ 345                  if (is_prime(q, SECURITY_LEVEL)) {
+ 346                      M_void_UART_SendString("\r\n q is a valid prime number.\r\n");
+ 347                      break;
+ 348                  } else {
+ 349                      M_void_UART_SendString("Error: q is not a prime number.\r\n");
+ 350                  }
+ 351              }
+ 352              // Calculate n and phi
+ 353              n = p * q;
+ 354              phi = (p - 1) * (q - 1);
+ 355          
+ 356              // Generate public key e
+ 357              while (1) {
+ 358                  M_void_UART_SendString("Enter public key value e: ");
+ 359                  e = M_U32_UART_ReceiveLong();
+ 360                  //M_void_UART_SendString("\r\n");
+ 361                  if (gcd(e, phi) == 1) {
+ 362                      M_void_UART_SendString("e is a valid public key.\r\n\r\n");
+ 363                      break;
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 7   
+
+ 364                  }
+ 365              }
+ 366              // Calculate private key d
+ 367              d = mod_inverse(e, phi);
+ 368          
+ 369              // Display keys
+ 370              //sprintf(buffer, "Public Key: (e = %lu, n = %lu)\r\n", e, n);
+ 371              //M_void_UART_SendString(buffer);
+ 372              sprintf(buffer, "(d = %lu, n = %lu)\r\n", d, n);
+ 373              M_void_UART_SendString(buffer);
+ 374          
+ 375              // Perform selected operation
+ 376              if (choice == '1') {  // Encryption
+ 377                  M_void_UART_SendString("Enter plaintext to encrypt (as integer): ");
+ 378                  plaintext = M_U32_UART_ReceiveLong();
+ 379                 // M_void_UART_SendString("\r\n");
+ 380                  ciphertext = mod_exp(plaintext, e, n);
+ 381                  sprintf(buffer, "Ciphertext: %i\r\n", ciphertext);
+ 382                  M_void_UART_SendString(buffer);
+ 383              } else if (choice == '2') {  // Decryption
+ 384                  M_void_UART_SendString("Enter ciphertext to decrypt: ");
+ 385                  ciphertext = M_U32_UART_ReceiveLong();
+ 386                  //M_void_UART_SendString("\r\n");
+ 387                  CRT_decrypt(ciphertext, p, q, d);
+ 388              }
+ 389          
+ 390              while (1);
+ 391          }
+ 392          
+ 393          // UART initialization
+ 394          void M_void_UART_Init() {
+ 395              TMOD = 0x20;  // Timer1 in Mode2 (8-bit auto-reload)
+ 396              TH1 = 0xFD;   // Timer1 value for 9600 baud with 11.0592 MHz crystal
+ 397              SCON = 0x50;  // 8-bit UART mode, REN enabled
+ 398              TR1 = 1;      // Start Timer1
+ 399          }
+ 400          
+ 401          void M_void_UART_SendChar(char c) {
+ 402              SBUF = c;
+ 403              while (TI == 0);
+ 404              TI = 0;
+ 405          }
+ 406          
+ 407          u8 M_U8_UART_ReceiveChar() {
+ 408              while (RI == 0);
+ 409              RI = 0;
+ 410              return SBUF;
+ 411          }
+ 412          
+ 413          void M_void_UART_SendString(u8* str) {
+ 414              while (*str) {
+ 415                  M_void_UART_SendChar(*str++);
+ 416              }
+ 417          }
+ 418          u32 M_U32_UART_ReceiveLong() {
+ 419              u32 value = 0;
+ 420              u8 i;
+ 421              u8 c;
+ 422          
+ 423              for (i = 0; i < MAX_INPUT_LENGTH; i++) {
+ 424                  c = M_U8_UART_ReceiveChar();
+ 425                  if (c == '\r' || c == '\n') break;  // End of input
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 8   
+
+ 426                  value = value * 10 + (c - '0');
+ 427              }
+ 428              return value;
+ 429          }
+ 430          
+ 431          // Modular exponentiation (square and multiply)
+ 432          u32 mod_exp(u32 base, u16 exp, u32 mod) {
+ 433              u32 result = 1;
+ 434              base = base % mod;
+ 435              while (exp > 0) {
+ 436                  if (exp % 2 == 1) {
+ 437                      result = (result * base) % mod;
+ 438                  }
+ 439                  exp >>= 1;
+ 440                  base = (base * base) % mod;
+ 441              }
+ 442              return result % mod ;
+ 443          }
+ 444          
+ 445          // GCD calculation
+ 446          u32 gcd(u32 a, u32 b) {
+ 447              while (b != 0) {
+ 448                  u32 temp = b;
+ 449                  b = a % b;
+ 450                  a = temp;
+ 451              }
+ 452              return a;
+ 453          }
+ 454          
+ 455          // Primality test using Fermat's method
+ 456          u32 is_prime(u32 n, u8 security_level) {
+ 457              u8 i;
+ 458              if (n <= 1) return 0;  // 0 and 1 are not prime
+ 459              if (n <= 3) return 1;  // 2 and 3 are prime
+ 460              for (i = 0; i < security_level; i++) {
+ 461                  u32 a = (rand() % (n - 4)) + 2;  // Random number in range [2, n-1]
+ 462                  if (mod_exp(a, n - 1, n) != 1) {
+ 463                      return 0;  // Not prime
+ 464                  }
+ 465              }
+ 466              return 1;  // Likely prime
+ 467          }
+ 468          
+ 469          // Modular inverse using Extended Euclidean Algorithm
+ 470          u32 mod_inverse(u32 e, u32 phi) {
+ 471              int t = 0, new_t = 1;
+ 472              int r = phi, new_r = e;
+ 473          
+ 474              while (new_r != 0) {
+ 475                  u32 quotient = r / new_r;
+ 476          
+ 477                  // Update r and t
+ 478                  int temp = new_r;
+ 479                  new_r = r - quotient * new_r;
+ 480                  r = temp;
+ 481          
+ 482                  temp = new_t;
+ 483                  new_t = t - quotient * new_t;
+ 484                  t = temp;
+ 485              }
+ 486          
+ 487              if (r > 1) return -1;  // No inverse exists
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 9   
+
+ 488              if (t < 0) t = t + phi;  // Make sure t is positive
+ 489          
+ 490              return t;
+ 491          }
+ 492          
+ 493          // Decrypt using CRT
+ 494          void CRT_decrypt(u32 ciphertext, u16 p, u16 q, u32 d) {
+ 495              char buffer[20];
+ 496              u32 plaintext;
+ 497          
+ 498              u16 dp = d % (p - 1);
+ 499              u16 dq = d % (q - 1);
+ 500              u16 q_inv = mod_inverse(q, p);  // q_inv = q^(-1) mod p
+ 501              u16 p_inv = mod_inverse(p, q);
+ 502            
+ 503              u16 m1 = mod_exp(ciphertext, dp, p);
+ 504              u16 m2 = mod_exp(ciphertext, dq, q);
+ 505          
+ 506              // Combine using CRT
+ 507              plaintext=((m2*p_inv*p)+(m1*q_inv*q))%(p*q);
+ 508            /*
+ 509              u32 h = (q_inv * (m1 - m2 + p)) % p;  // h = (m1 - m2) * q^(-1) mod p
+ 510              plaintext = m2 + h * q;
+ 511          
+ 512              sprintf(buffer, "Decrypted value: %lu\r\n", plaintext);
+ 513              M_void_UART_SendString(buffer);
+ 514          }
+ 515          */
+ 516          
+ 517          
+ 518          
+ 519          /*
+ 520          #include <reg51.h>
+ 521          #include <stdio.h>
+ 522          #include <stdlib.h>
+ 523          
+ 524          // Configuration defines
+ 525          #define MAX_INPUT_LENGTH 5  // Maximum input length for numbers
+ 526          #define SECURITY_LEVEL 5    // Security level for primality test
+ 527          #define ASCII_PRINTABLE_MIN 32  // Minimum printable ASCII value
+ 528          #define ASCII_PRINTABLE_MAX 126 // Maximum printable ASCII value
+ 529          
+ 530          // Bit manipulation macros
+ 531          #define READ_BIT(REG,POS) ((REG>>POS)&1)
+ 532          #define SET_BIT(REG,POS)  (REG|=(1<<POS))
+ 533          #define CLEAR_BIT(REG,POS) (REG=~(1<<POS))
+ 534          
+ 535          // Typedefs
+ 536          typedef unsigned char           u8;
+ 537          typedef unsigned short int      u16;
+ 538          typedef unsigned long int       u32;
+ 539          
+ 540          typedef signed int              s32;
+ 541          
+ 542          // UART function prototypes
+ 543          void M_void_UART_Init();
+ 544          void M_void_UART_SendChar(u8 c);
+ 545          u8 M_U8_UART_ReceiveChar();
+ 546          void M_void_UART_SendString(u8* str);
+ 547          u32 M_U32_UART_ReceiveLong();
+ 548          // void UART_ReceiveString(char* buffer, int length);
+ 549          
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 10  
+
+ 550          // Math function prototypes
+ 551          u32 mod_exp(u32 base, u32 exp, u32 mod);
+ 552          u32 gcd(u32 a, u32 b);
+ 553          u32 generate_e(u32 phi);
+ 554          u32 is_prime(u32 n, u8 security_level);
+ 555          u32 mod_inverse(u32 e, u32 phi);
+ 556          
+ 557          // Global variables
+ 558          u16 p, q;
+ 559          u32 n, phi, d , e ;
+ 560          
+ 561          void main(void) {
+ 562            
+ 563             unsigned int choice;
+ 564             unsigned int plaintext, ciphertext, decrypted_value;
+ 565             unsigned char buffer[40];
+ 566             //unsigned char Buf[5];
+ 567          
+ 568              // Initialize UART
+ 569              M_void_UART_Init();
+ 570              M_void_UART_SendString("RSA Encryption/Decryption System\r\n\r\n");
+ 571          
+ 572              // Prompt user for operation choice
+ 573              while (1) {
+ 574                  M_void_UART_SendString("Choose operation:\r\n1. Encrypt\r\n2. Decrypt\r\nEnter choice: ");
+ 575                  choice = M_U32_UART_ReceiveLong();
+ 576                  M_void_UART_SendString("\r\n");
+ 577                  if (choice == 1 || choice == 2) break;
+ 578                  M_void_UART_SendString("Invalid choice. Please enter 1 or 2.\r\n\r\n");
+ 579              }
+ 580          
+ 581              // Input p (ensure it's prime)
+ 582              while (1) {
+ 583                  M_void_UART_SendString("Enter prime number p: ");
+ 584                  p = M_U32_UART_ReceiveLong();
+ 585                  M_void_UART_SendString("\r\n");
+ 586          
+ 587                  if (is_prime(p, SECURITY_LEVEL)) {
+ 588                      M_void_UART_SendString("p is a valid prime number.\r\n\r\n");
+ 589                      break;
+ 590                  } else {
+ 591                      M_void_UART_SendString("Error: p is not a prime number. Please try again.\r\n\r\n");
+ 592                  }
+ 593              }
+ 594          
+ 595              // Input q (ensure it's prime)
+ 596              while (1) {
+ 597                  M_void_UART_SendString("Enter prime number q: ");
+ 598                  q = M_U32_UART_ReceiveLong();
+ 599                  M_void_UART_SendString("\r\n");
+ 600          
+ 601                  if (is_prime(q, SECURITY_LEVEL)) {
+ 602                      M_void_UART_SendString("q is a valid prime number.\r\n\r\n");
+ 603                      break;
+ 604                  } else {
+ 605                      M_void_UART_SendString("Error: q is not a prime number. Please try again.\r\n\r\n");
+ 606                  }
+ 607              }
+ 608          
+ 609              // Calculate n and phi
+ 610              n = p * q;
+ 611              phi = (p - 1) * (q - 1);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 11  
+
+ 612          
+ 613              // Generate public key e
+ 614               while (1) {
+ 615                  M_void_UART_SendString("Enter public key value e: ");
+ 616                  e = M_U32_UART_ReceiveLong();
+ 617                  M_void_UART_SendString("\r\n");
+ 618          
+ 619                  if (gcd(e, phi) == 1) {
+ 620                      M_void_UART_SendString("e is a valid public key.\r\n\r\n");
+ 621                      break;
+ 622                  } 
+ 623              }
+ 624          
+ 625              // Calculate private key d
+ 626              d = mod_inverse(e, phi);
+ 627          
+ 628              // Display keys
+ 629              sprintf(buffer, "Public Key: (e = %lu, n = %lu)\r\n", e, n);
+ 630              M_void_UART_SendString(buffer);
+ 631              sprintf(buffer, "Private Key: (d = %lu, phi(n) = %lu)\r\n\r\n", d, phi);
+ 632              M_void_UART_SendString(buffer);
+ 633          
+ 634              // Perform selected operation
+ 635              if (choice == 1) {  // Encryption
+ 636                  M_void_UART_SendString("Enter plaintext to encrypt (as integer): ");
+ 637                  //UART_ReceiveString(Buf, 5);
+ 638                  //plaintext = atoi(Buf);
+ 639                  plaintext=M_U32_UART_ReceiveLong();
+ 640                  M_void_UART_SendString("\r\n");
+ 641          
+ 642                  // Encrypt plaintext
+ 643                  ciphertext = mod_exp(plaintext, e, n);
+ 644                  sprintf(buffer, "Ciphertext: %d\r\n", ciphertext);
+ 645                  M_void_UART_SendString(buffer);
+ 646              } else if (choice == 2) {  // Decryption
+ 647                  M_void_UART_SendString("Enter ciphertext to decrypt: ");
+ 648                  //UART_ReceiveString(Buf, 5);
+ 649                  //ciphertext = atoi(Buf);
+ 650                  ciphertext=M_U32_UART_ReceiveLong();
+ 651                  M_void_UART_SendString("\r\n");
+ 652          
+ 653                  // Decrypt ciphertext
+ 654                  decrypted_value = mod_exp(ciphertext, d, n);
+ 655                  sprintf(buffer, "Decrypted value: %d\r\n", decrypted_value);
+ 656                  M_void_UART_SendString(buffer);
+ 657          
+ 658                 
+ 659              }
+ 660          
+ 661           while(1);
+ 662              
+ 663          }
+ 664          
+ 665          // UART initialization
+ 666          void M_void_UART_Init() {
+ 667              TMOD = 0x20;  // Timer1 in Mode2 (8-bit auto-reload)
+ 668              TH1 = 0xFD;   // Timer1 value for 9600 baud with 11.0592 MHz crystal
+ 669              SCON = 0x50;  // 8-bit UART mode, REN enabled
+ 670              TR1 = 1;      // Start Timer1
+ 671          }
+ 672          
+ 673          void M_void_UART_SendChar(char c) {
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 12  
+
+ 674              SBUF = c;
+ 675              while (TI == 0);
+ 676              TI = 0;
+ 677          }
+ 678          
+ 679          u8 M_U8_UART_ReceiveChar() {
+ 680              while (RI == 0);
+ 681              RI = 0;
+ 682              return SBUF;
+ 683          }
+ 684          
+ 685          void M_void_UART_SendString(u8* str) {
+ 686              while (*str) {
+ 687                  M_void_UART_SendChar(*str++);
+ 688              }
+ 689          }
+ 690          
+ 691          u32 M_U32_UART_ReceiveLong() {
+ 692              u32 value = 0;
+ 693              u8 i;
+ 694              u8 c;
+ 695          
+ 696              for (i = 0; i < MAX_INPUT_LENGTH; i++) {
+ 697                  c = M_U8_UART_ReceiveChar();
+ 698                  if (c == '\r' || c == '\n') break;  // End of input
+ 699                  value = value * 10 + (c - '0');
+ 700              }
+ 701              return value;
+ 702          }
+ 703          */
+ 704          /*
+ 705          void UART_ReceiveString(unsigned char* buffer, unsigned int length) {
+ 706             unsigned int i = 0;
+ 707             unsigned char ch;
+ 708              while (i < length) {
+ 709                  ch = M_U8_UART_ReceiveChar();
+ 710                  if (ch == '\n' || ch == '\r') {
+ 711                      break;
+ 712                  }
+ 713                  buffer[i++] = ch;
+ 714              }
+ 715          }
+ 716          */
+ 717          // Modular exponentiation (square and multiply)
+ 718          /*
+ 719          u32 mod_exp(u32 base, u32 exp, u32 mod) {
+ 720              u16 result = 1;
+ 721              base = base % mod;
+ 722              while (exp > 0) {
+ 723                  if (exp % 2 == 1) {
+ 724                      result = ((result * base) % mod);
+ 725                  }
+ 726                  exp = exp >> 1;
+ 727                  base = ((base * base) % mod);
+ 728              }
+ 729              return result;
+ 730          }
+ 731          
+ 732          // GCD calculation
+ 733          u32 gcd(u32 a, u32 b) {
+ 734              while (b != 0) {
+ 735                 unsigned int temp = b;
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 13  
+
+ 736                  b = a % b;
+ 737                  a = temp;
+ 738              }
+ 739              return a;
+ 740          }
+ 741          
+ 742          
+ 743          // Primality test using Fermat's method
+ 744          u32 is_prime(u32 n, u8 security_level) {
+ 745              u8 i;
+ 746              if (n <= 1) return 0; // 0 and 1 are not prime
+ 747              if (n <= 3) return 1; // 2 and 3 are prime
+ 748              for (i = 0; i < security_level; i++) {
+ 749                  unsigned int a = (rand() % (n - 4)) + 2;  // Random number in range [2, n-1]
+ 750                  if (mod_exp(a, n - 1, n) != 1) {
+ 751                      return 0;  // Not prime
+ 752                  }
+ 753              }
+ 754              return 1;  // Likely prime
+ 755          }
+ 756          
+ 757          // Modular inverse using Extended Euclidean Algorithm
+ 758          u32 mod_inverse(u32 e, u32 phi) 
+ 759            {
+ 760              int t, new_t;
+ 761              int r, new_r;
+ 762              int quotient;
+ 763              int temp;
+ 764              
+ 765              r = phi;
+ 766              new_r = e;
+ 767              t = 0;
+ 768              new_t = 1;
+ 769          
+ 770              while (new_r != 0) 
+ 771                {
+ 772                  quotient = r / new_r;
+ 773          
+ 774                  // Update r and t
+ 775                  r = r - quotient * new_r;
+ 776                  t = t - quotient * new_t;
+ 777          
+ 778                  // Swap
+ 779                 temp = r;
+ 780                  r = new_r;
+ 781                  new_r = temp;
+ 782          
+ 783                  temp = t;
+ 784                  t = new_t;
+ 785                  new_t = temp;
+ 786              }
+ 787          
+ 788              // Make sure t is positive
+ 789              if (r > 1) {
+ 790                  return -1;  // No inverse exists
+ 791              }
+ 792              if (t < 0) {
+ 793                  t = t + phi;
+ 794              }
+ 795          
+ 796              return t;
+ 797            }
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 14  
+
+ 798          
+ 799          
+ 800          */
+ 801          
+ 802          
+ 803          /*
+ 804          #include <reg51.h>
+ 805          #include <stdio.h>
+ 806          #include <stdlib.h>
+ 807          
+ 808          #define SECURITY_LEVEL 5
+ 809          #define MAX_HEX_LENGTH 5
+ 810          
+ 811          typedef unsigned char u8;
+ 812          typedef unsigned long u32;
+ 813          
+ 814          // Function prototypes
+ 815          void M_void_UART_Init();
+ 816          void M_void_UART_SendChar(u8 c);
+ 817          void M_void_UART_SendString(u8* str);
+ 818          void M_U32_UART_ReceiveHex(u32* value);
+ 819          u32 mod_exp(u32 base, u32 exp, u32 mod);
+ 820          u32 gcd(u32 a, u32 b);
+ 821          u32 is_prime(u32 n, u8 security_level);
+ 822          u32 generate_e(u32 phi);
+ 823          u32 mod_inverse(u32 e, u32 phi);
+ 824          
+ 825          u32 p, q, n, phi, e, d;
+ 826          char s ;
+ 827          void main(void) {
+ 828              u8 choice;
+ 829              u32 plaintext, ciphertext;
+ 830              char buffer[10];
+ 831          
+ 832              M_void_UART_Init();
+ 833              M_void_UART_SendString("RSA Implementation\r\n");
+ 834          
+ 835              // Input p and q (prime numbers)
+ 836              while (1) {
+ 837                  M_void_UART_SendString("Enter prime number p (4-digit hex): ");
+ 838                  M_U32_UART_ReceiveHex(&p);
+ 839                  M_void_UART_SendString("\r\n");
+ 840                  
+ 841                  M_void_UART_SendString("Enter prime number q (4-digit hex): ");
+ 842                  M_U32_UART_ReceiveHex(&q);
+ 843                  M_void_UART_SendString("\r\n");
+ 844          
+ 845                  // Validate p and q
+ 846                  if (is_prime(p, SECURITY_LEVEL) && is_prime(q, SECURITY_LEVEL)) {
+ 847                      M_void_UART_SendString("Both p and q are prime.\r\n");
+ 848                      break;
+ 849                  } else {
+ 850                      M_void_UART_SendString("Error: p or q is not prime. Please re-enter.\r\n");
+ 851                  }
+ 852              }
+ 853          
+ 854              // Calculate n and phi
+ 855              n = p * q;
+ 856              phi = (p - 1) * (q - 1);
+ 857          
+ 858              // Generate e
+ 859              e = generate_e(phi);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 15  
+
+ 860              if (e == 0) {
+ 861                  M_void_UART_SendString("Error: Could not generate e.\r\n");
+ 862                  while (1);
+ 863              }
+ 864          
+ 865              // Calculate d
+ 866              d = mod_inverse(e, phi);
+ 867              if (d == -1) {
+ 868                  M_void_UART_SendString("Error: Could not compute modular inverse for e.\r\n");
+ 869                  while (1);
+ 870              }
+ 871          
+ 872              // Display keys
+ 873              
+ 874              sprintf(buffer, "Public Key: (e = %lu, n = %lu)\r\n", e, n);
+ 875              M_void_UART_SendString(buffer);
+ 876              sprintf(buffer, "Private Key: (d = %lu, n = %lu)\r\n", d, n);
+ 877              M_void_UART_SendString(buffer);
+ 878          
+ 879              // Main loop for encrypt/decrypt choice
+ 880              while (1) {
+ 881                  M_void_UART_SendString("Choose operation: 1 for Encrypt, 2 for Decrypt: ");
+ 882                  choice = M_U8_UART_ReceiveChar();
+ 883                  M_void_UART_SendString("\r\n");
+ 884          
+ 885                  if (choice == '1') {
+ 886                      // Encryption
+ 887                      M_void_UART_SendString("Enter plaintext (4-digit hex): ");
+ 888                      M_U32_UART_ReceiveHex(&plaintext);
+ 889                      M_void_UART_SendString("\r\n");
+ 890          
+ 891                      // Encrypt the plaintext
+ 892                      ciphertext = mod_exp(plaintext, e, n);
+ 893                      sprintf(buffer, "Ciphertext: %lu\r\n", ciphertext);
+ 894                      M_void_UART_SendString(buffer);
+ 895          
+ 896                  } else if (choice == '2') {
+ 897                      // Decryption
+ 898                      M_void_UART_SendString("Enter ciphertext (4-digit hex): ");
+ 899                      M_U32_UART_ReceiveHex(&ciphertext);
+ 900                      M_void_UART_SendString("\r\n");
+ 901          
+ 902                      // Decrypt the ciphertext
+ 903                      plaintext = mod_exp(ciphertext, d, n);
+ 904                      sprintf(buffer, "Decrypted value: %lu\r\n", plaintext);
+ 905                      M_void_UART_SendString(buffer);
+ 906                  }
+ 907              }
+ 908          }
+ 909          
+ 910          // UART initialization
+ 911          void M_void_UART_Init() {
+ 912              TMOD = 0x20;  // Timer1 in Mode 2 (8-bit auto-reload)
+ 913              TH1 = 0xFD;   // Timer1 value for 9600 baud with 11.0592 MHz crystal
+ 914              SCON = 0x50;  // 8-bit UART mode, REN enabled
+ 915              TR1 = 1;      // Start Timer1
+ 916          }
+ 917          
+ 918          void M_void_UART_SendChar(char c) {
+ 919              SBUF = c;
+ 920              while (TI == 0);
+ 921              TI = 0;
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 16  
+
+ 922          }
+ 923          
+ 924          void M_void_UART_SendString(u8* str) {
+ 925              while (*str) {
+ 926                  M_void_UART_SendChar(*str++);
+ 927              }
+ 928          }
+ 929          
+ 930          void M_U32_UART_ReceiveHex(u32* value) {
+ 931              *value = 0;
+ 932               
+ 933              for(  s = 0 ; s < 4 ; s++ )
+ 934            {
+ 935                  char c = M_U8_UART_ReceiveChar();
+ 936                  if (c >= '0' && c <= '9') {
+ 937                      *value = (*value << 4) | (c - '0');
+ 938                  } else if (c >= 'A' && c <= 'F') {
+ 939                      *value = (*value << 4) | (c - 'A' + 10);
+ 940                  } else if (c >= 'a' && c <= 'f') {
+ 941                      *value = (*value << 4) | (c - 'a' + 10);
+ 942                  }
+ 943              }
+ 944          }
+ 945          
+ 946          u32 mod_exp(u32 base, u32 exp, u32 mod) {
+ 947              u32 result = 1;
+ 948              base = base % mod;
+ 949              while (exp > 0) {
+ 950                  if (exp % 2 == 1) {
+ 951                      result = (result * base) % mod;
+ 952                  }
+ 953                  exp = exp >> 1;
+ 954                  base = (base * base) % mod;
+ 955              }
+ 956              return result;
+ 957          }
+ 958          
+ 959          u32 gcd(u32 a, u32 b) {
+ 960              while (b != 0) {
+ 961                  u32 temp = b;
+ 962                  b = a % b;
+ 963                  a = temp;
+ 964              }
+ 965              return a;
+ 966          }
+ 967          
+ 968          u32 is_prime(u32 n, u8 security_level) {
+ 969              
+ 970              if (n <= 1) return 0; // 0 and 1 are not prime
+ 971              if (n <= 3) return 1; // 2 and 3 are prime
+ 972              for (s = 0; s < security_level; s++) {
+ 973                  u32 a = (rand() % (n - 4)) + 2;  // Random number in range [2, n-1]
+ 974                  if (mod_exp(a, n - 1, n) != 1) {
+ 975                      return 0;  // Not prime
+ 976                  }
+ 977              }
+ 978              return 1;  // Likely prime
+ 979          }
+ 980          
+ 981          u32 generate_e(u32 phi) {
+ 982             u32 e;
+ 983              for (e = 3; e < phi; e += 2) {
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 17  
+
+ 984                  if (gcd(e, phi) == 1) {
+ 985                      return e;  // Found a suitable e
+ 986                  }
+ 987              }
+ 988              return 0; // In case no suitable e is found
+ 989          }
+ 990          
+ 991          u32 mod_inverse(u32 e, u32 phi) {
+ 992              int t = 0, new_t = 1;
+ 993              int r = phi, new_r = e;
+ 994          
+ 995              while (new_r != 0) {
+ 996                  u32 quotient = r / new_r;
+ 997          
+ 998                  // Update r and t
+ 999                  int temp = new_r;
+1000                  new_r = r - quotient * new_r;
+1001                  r = temp;
+1002          
+1003                  temp = new_t;
+1004                  new_t = t - quotient * new_t;
+1005                  t = temp;
+1006              }
+1007          
+1008              if (r > 1) return -1;  // No inverse exists
+1009              if (t < 0) t += phi;   // Make sure t is positive
+1010          
+1011              return t;
+1012          }
+1013          
+1014          */
+1015          
+1016          /*
+1017          #include <reg51.h>
+1018          #include <stdio.h>
+1019          
+1020          #define SECURITY_LEVEL 5
+1021          
+1022          typedef unsigned char u8;
+1023          typedef unsigned long u32;
+1024          
+1025          void M_void_UART_Init();
+1026          void M_void_UART_SendChar(u8 c);
+1027          void M_void_UART_SendString(u8* str);
+1028          void M_U32_UART_ReceiveHex(u32* value);
+1029          u32 mod_exp(u32 base, u32 exp, u32 mod);
+1030          u32 gcd(u32 a, u32 b);
+1031          u8 is_prime(u32 n);
+1032          u32 generate_e(u32 phi);
+1033          u32 mod_inverse(u32 e, u32 phi);
+1034          
+1035          u32 p, q, n, phi, e, d;
+1036          char buffer[10];
+1037          void main(void) {
+1038              u8 choice;
+1039              u32 input;
+1040          
+1041              M_void_UART_Init();
+1042              M_void_UART_SendString("RSA Implementation\r\n");
+1043          
+1044              // Input p and q (prime numbers)
+1045              while (1) {
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 18  
+
+1046                  M_void_UART_SendString("Enter prime number p (4-digit hex): ");
+1047                  M_U32_UART_ReceiveHex(&p);
+1048                  M_void_UART_SendString("\r\n");
+1049          
+1050                  M_void_UART_SendString("Enter prime number q (4-digit hex): ");
+1051                  M_U32_UART_ReceiveHex(&q);
+1052                  M_void_UART_SendString("\r\n");
+1053          
+1054                  if (is_prime(p) && is_prime(q)) {
+1055                      M_void_UART_SendString("Both p and q are prime.\r\n");
+1056                      break;
+1057                  } else {
+1058                      M_void_UART_SendString("Error: p or q is not prime. Please re-enter.\r\n");
+1059                  }
+1060              }
+1061          
+1062              n = p * q;
+1063              phi = (p - 1) * (q - 1);
+1064              e = generate_e(phi);
+1065              d = mod_inverse(e, phi);
+1066          
+1067              // Main loop for encrypt/decrypt choice
+1068              while (1) {
+1069                  M_void_UART_SendString("Choose operation: 1 for Encrypt, 2 for Decrypt: ");
+1070                  choice = M_U8_UART_ReceiveChar();
+1071                  M_void_UART_SendString("\r\n");
+1072          
+1073                  if (choice == '1') {
+1074                      M_void_UART_SendString("Enter plaintext (4-digit hex): ");
+1075                      M_U32_UART_ReceiveHex(&input);
+1076                      M_void_UART_SendString("\r\n");
+1077                      u32 ciphertext = mod_exp(input, e, n);
+1078                      sprintf(buffer, "Ciphertext: %lu\r\n", ciphertext);
+1079                      M_void_UART_SendString(buffer);
+1080                  } else if (choice == '2') {
+1081                      M_void_UART_SendString("Enter ciphertext (4-digit hex): ");
+1082                      M_U32_UART_ReceiveHex(&input);
+1083                      M_void_UART_SendString("\r\n");
+1084                      u32 plaintext = mod_exp(input, d, n);
+1085                      sprintf(buffer, "Decrypted value: %lu\r\n", plaintext);
+1086                      M_void_UART_SendString(buffer);
+1087                  }
+1088              }
+1089          }
+1090          
+1091          void M_void_UART_Init() {
+1092              TMOD = 0x20;  // Timer1 in Mode 2 (8-bit auto-reload)
+1093              TH1 = 0xFD;   // Timer1 value for 9600 baud
+1094              SCON = 0x50;  // 8-bit UART mode, REN enabled
+1095              TR1 = 1;      // Start Timer1
+1096          }
+1097          
+1098          void M_void_UART_SendChar(char c) {
+1099              SBUF = c;
+1100              while (TI == 0);
+1101              TI = 0;
+1102          }
+1103          
+1104          void M_void_UART_SendString(u8* str) {
+1105              while (*str) {
+1106                  M_void_UART_SendChar(*str++);
+1107              }
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 19  
+
+1108          }
+1109          
+1110          void M_U32_UART_ReceiveHex(u32* value) {
+1111            u8 i;
+1112              *value = 0;
+1113              for ( i = 0; i < 4; i++) {
+1114                  char c = M_U8_UART_ReceiveChar();
+1115                  if (c >= '0' && c <= '9') {
+1116                      *value = (*value << 4) | (c - '0');
+1117                  } else if (c >= 'A' && c <= 'F') {
+1118                      *value = (*value << 4) | (c - 'A' + 10);
+1119                  } else if (c >= 'a' && c <= 'f') {
+1120                      *value = (*value << 4) | (c - 'a' + 10);
+1121                  }
+1122              }
+1123          }
+1124          
+1125          u32 mod_exp(u32 base, u32 exp, u32 mod) {
+1126              u32 result = 1;
+1127              base = base % mod;
+1128              while (exp > 0) {
+1129                  if (exp % 2 == 1) {
+1130                      result = (result * base) % mod;
+1131                  }
+1132                  exp >>= 1;
+1133                  base = (base * base) % mod;
+1134              }
+1135              return result;
+1136          }
+1137          
+1138          u32 gcd(u32 a, u32 b) {
+1139              while (b) {
+1140                  u32 temp = b;
+1141                  b = a % b;
+1142                  a = temp;
+1143              }
+1144              return a;
+1145          }
+1146          
+1147          u8 is_prime(u32 n) {
+1148            u32 i;
+1149              if (n <= 1) return 0;
+1150              if (n <= 3) return 1;
+1151              for ( i = 2; i * i <= n; i++)
+1152                  if (n % i == 0) return 0;
+1153              return 1;
+1154          }
+1155          
+1156          u32 generate_e(u32 phi) {
+1157            u32 e;
+1158              for ( e= 3; e < phi; e += 2) {
+1159                  if (gcd(e, phi) == 1) return e;
+1160              }
+1161              return 0; // In case no suitable e is found
+1162          }
+1163          
+1164          u32 mod_inverse(u32 e, u32 phi) {
+1165              int t = 0, new_t = 1;
+1166              int r = phi, new_r = e;
+1167              while (new_r != 0) {
+1168                  u32 quotient = r / new_r;
+1169                  int temp = new_r;
+C51 COMPILER V9.60.7.0   MAIN                                                              01/18/2025 18:02:37 PAGE 20  
+
+1170                  new_r = r - quotient * new_r;
+1171                  r = temp;
+1172                  temp = new_t;
+1173                  new_t = t - quotient * new_t;
+1174                  t = temp;
+1175              }
+1176              if (r > 1) return -1;  // No inverse exists
+1177              if (t < 0) t += phi;   // Make sure t is positive
+1178              return t;
+1179          }
+1180          
+1181          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1403    ----
+   CONSTANT SIZE    =    587    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     20     125
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
